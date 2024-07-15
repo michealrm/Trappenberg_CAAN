@@ -3,6 +3,16 @@ import scipy as sp
 import math
 from matplotlib import pyplot as plt
 
+def get_diff_matrix(N:int, around_c:int = None):
+    row_indices = np.arange(N).reshape(-1, 1)
+    col_indices = np.arange(N).reshape(1, -1)
+
+    if around_c is None:
+        diff_matrix = np.abs(col_indices - row_indices)
+    else:
+        diff_matrix = np.abs(np.arange(N) - around_c).reshape(-1, 1)
+
+    return diff_matrix
 
 def weights_with_gaussian_kernel(N: int, a: int = 0.2):
     """
@@ -14,13 +24,12 @@ def weights_with_gaussian_kernel(N: int, a: int = 0.2):
     :param N: Number of neurons in the network
     :param a: Width of the Gaussian kernel
     """
-    w = np.zeros((N, N))
+    w = get_diff_matrix(N)
 
-    for r in range(1, N + 1):
-        for c in range(1, N + 1):
-            w[r - 1][c - 1] = math.exp(-math.pow(r - c, 2) / 2 * math.pow(a, 2))  # TODO no two for loops :) -- linspace
+    return gaussian_func(w)
 
-    return w
+def gaussian_func(diff_matrix: np.ndarray, a: float = 0.2):
+    return np.exp(-np.power(diff_matrix, 2) / 2 * np.power(a, 2))
 
 class Network:
     def __init__(self, N: int, T: int, W_func = weights_with_gaussian_kernel, U = None, W_args: tuple = None):
