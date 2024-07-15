@@ -23,18 +23,16 @@ def weights_with_gaussian_kernel(N: int, a: int = 0.2):
     return w
 
 class Network:
-    def __init__(self, N: int, T: int, W_func = weights_with_gaussian_kernel, U = None, ode_func = None, W_args: tuple = None):
+    def __init__(self, N: int, T: int, W_func = weights_with_gaussian_kernel, U = None, W_args: tuple = None):
+        self.N = N
+        self.T = T
         self.W = W_func(N, *W_args) if W_args is not None else W_func(N)
-        self.U = np.zeros((N, T))
-        self.params = {
-            'N': N,
-            'T': T,
-            'ode_func': ode_func
-        }
+        self.U = np.zeros((N, T)) if U is None else U
 
-    def simulate(self, external_input: np.ndarray, ivp_func, ivp_func_args: tuple = None):
+    def simulate(self, external_input: np.ndarray, ivp_func, get_U_func, ivp_func_args: tuple = None):
         # store_vars()
         result = ivp_func(self, external_input) if ivp_func_args is None else ivp_func(self, external_input, *ivp_func_args)
+        self.U = get_U_func(result)
         return result
 
     def store_network_state(self):
@@ -55,7 +53,7 @@ def nn_ode(t, Uc, W, I, tau=1, mu=2):
 
 def sp_solve_ivp(nn: Network, external_input, ode_func = nn_ode, nn_ode_args: tuple = None):
     solve_ivp_args = (nn.W, external_input) if nn_ode_args is None else (nn.W, external_input, *nn_ode_args)
-    sp.integrate.solve_ivp(ode_func, [0, nn.params['T'] - 1], nn.U[:, 0], t_eval=np.arange(0, nn.params['T']), args=solve_ivp_args)
+    return sp.integrate.solve_ivp(ode_func, [0, nn.T - 1], nn.U[:, 0], t_eval=np.arange(0, nn.T), args=solve_ivp_args)
 
 def plot_weight_matrix(nn: Network, title: str):
     w = nn.W
@@ -69,7 +67,6 @@ def plot_external_input(external_input):
     plt.imshow(external_input);
 
 def plot_firing_rate(nn: Network, title = 'U (firing rate)'):
-    U = np.zeros((num_nodes, num_time_steps))
     plt.title(title)
     plt.xlabel("Time step")
     plt.ylabel("Nodes")
