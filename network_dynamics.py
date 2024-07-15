@@ -69,10 +69,9 @@ def plot_weight_matrix(nn: Network, title: str):
     plt.title(title)
     plt.imshow(w);
 
-def plot_weight(nn: Network, weight_index_to_plot:int):
+def plot_weight(nn: Network, weight_index_to_plot:int, title:str):
     fig, axs = plt.subplots(2, figsize=(12, 10))
-    fig.suptitle('Weights with Gaussian Kernel for Periodic Stimulus')
-    # axs[0].plot(np.arange(nn.N), nn.W)
+    fig.suptitle(title)
     axs[0].imshow(nn.W)
     axs[1].title.set_text('Weight for c=%d' % weight_index_to_plot)
     axs[1].plot(np.arange(nn.N), nn.W[weight_index_to_plot])
@@ -84,6 +83,14 @@ def plot_external_input(external_input):
     plt.xlabel("Time step")
     plt.ylabel("Nodes")
     plt.imshow(external_input);
+
+def plot_external_input_at_t(external_input, t:int):
+    fig, axs = plt.subplots(2, figsize=(12, 10))
+    fig.suptitle('External Input')
+    axs[0].imshow(external_input)
+    axs[1].title.set_text('t=%d' % t)
+    axs[1].plot(external_input[:,t])
+    plt.show();
 
 def plot_firing_rate(nn: Network, title = 'U (firing rate)'):
     plt.title(title)
