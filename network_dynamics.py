@@ -8,9 +8,9 @@ def get_diff_matrix(N:int, around_c:int = None):
     col_indices = np.arange(N).reshape(1, -1)
 
     if around_c is None:
-        diff_matrix = np.abs(col_indices - row_indices)
+        diff_matrix = np.fabs(col_indices - row_indices)
     else:
-        diff_matrix = np.abs(np.arange(N) - around_c).reshape(-1, 1)
+        diff_matrix = np.fabs(np.arange(N) - around_c).reshape(-1, 1)
 
     return diff_matrix
 
@@ -26,16 +26,16 @@ def weights_with_gaussian_kernel(N: int, a: int = 0.2):
     """
     w = get_diff_matrix(N)
 
-    return gaussian_func(w)
+    return gaussian_func(w, a)
 
 def gaussian_func(diff_matrix: np.ndarray, a: float = 0.2):
     return np.exp(-np.power(diff_matrix, 2) / 2 * np.power(a, 2))
 
 class Network:
-    def __init__(self, N: int, T: int, W_func = weights_with_gaussian_kernel, U = None, W_args: tuple = None):
+    def __init__(self, N: int, T: int, W_func = weights_with_gaussian_kernel, U = None, W_kwargs:dict = None):
         self.N = N
         self.T = T
-        self.W = W_func(N, *W_args) if W_args is not None else W_func(N)
+        self.W = W_func(N, **W_kwargs) if W_kwargs is not None else W_func(N)
         self.U = np.zeros((N, T)) if U is None else U
 
     def simulate(self, external_input: np.ndarray, ivp_func, get_U_func, ivp_func_args: tuple = None):
@@ -68,6 +68,16 @@ def plot_weight_matrix(nn: Network, title: str):
     w = nn.W
     plt.title(title)
     plt.imshow(w);
+
+def plot_weight(nn: Network, weight_index_to_plot:int):
+    fig, axs = plt.subplots(2, figsize=(12, 10))
+    fig.suptitle('Weights with Gaussian Kernel for Periodic Stimulus')
+    # axs[0].plot(np.arange(nn.N), nn.W)
+    axs[0].imshow(nn.W)
+    axs[1].title.set_text('Weight for c=%d' % weight_index_to_plot)
+    axs[1].plot(np.arange(nn.N), nn.W[weight_index_to_plot])
+    axs[1].axvline(weight_index_to_plot, linestyle='--')
+    plt.show();
 
 def plot_external_input(external_input):
     plt.title('External Input per node, per timestep')
