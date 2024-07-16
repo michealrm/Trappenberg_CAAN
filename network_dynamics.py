@@ -78,22 +78,24 @@ def plot_weight(nn: Network, weight_index_to_plot:int, title:str):
     axs[1].axvline(weight_index_to_plot, linestyle='--')
     plt.show();
 
-def plot_external_input(external_input):
-    plt.title('External Input per node, per timestep')
+def plot_external_input(external_input, title = 'External Input per node, per timestep'):
+    plt.title(title)
     plt.xlabel("Time step")
     plt.ylabel("Nodes")
     plt.imshow(external_input);
+    plt.show();
 
-def plot_external_input_at_t(external_input, t:int):
+def plot_external_input_at_t(external_input, t:int, title = 'External Input'):
     fig, axs = plt.subplots(2, figsize=(12, 10))
-    fig.suptitle('External Input')
+    fig.suptitle(title)
     axs[0].imshow(external_input)
     axs[1].title.set_text('t=%d' % t)
     axs[1].plot(external_input[:,t])
     plt.show();
 
-def plot_firing_rate(nn: Network, title = 'U (firing rate)'):
+def plot_firing_rate(nn: Network, title = 'Firing rate over time (U)'):
     plt.title(title)
     plt.xlabel("Time step")
     plt.ylabel("Nodes")
     plt.imshow(nn.U);
+    plt.show();
