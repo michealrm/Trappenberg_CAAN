@@ -1,6 +1,5 @@
 import numpy as np
 import scipy as sp
-import math
 from matplotlib import pyplot as plt
 
 def get_diff_matrix(N:int, around_c:int = None):
