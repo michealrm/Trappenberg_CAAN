@@ -39,10 +39,10 @@ class Network:
             diff_matrix_func(self))
         self.U = np.zeros((N, T)) if U is None else U
 
-    def simulate(self, external_input: np.ndarray, ivp_func, get_U_func, ivp_func_args: tuple = None):
+    def simulate(self, external_input: np.ndarray, ivp_func, get_U_func, ivp_func_kwargs: dict = None):
         # store_vars()
-        result = ivp_func(self, external_input) if ivp_func_args is None else ivp_func(self, external_input,
-                                                                                       *ivp_func_args)
+        result = ivp_func(self, external_input) if ivp_func_kwargs is None else ivp_func(self, external_input,
+                                                                                       **ivp_func_kwargs)
         self.U = get_U_func(result)
         return result
 
@@ -59,14 +59,14 @@ def nn_ode(t, Uc, W, I, tau=1, mu=2):
     t = int(t)
     Uc[Uc < 0] = 0  # rectify Uc the negative part -- set negative Uc to be 0
 
+    # TODO: Explain why we transpose and dot product
     Oc = Uc ** 2 / (1 + mu * Uc.T.dot(Uc))  # global inhibition
     return (-Uc + W.T.dot(Oc) + I[:, t]) / tau
 
 
 def sp_solve_ivp(nn: Network, external_input, ode_func=nn_ode, nn_ode_args: tuple = None):
-    solve_ivp_args = (nn.W, external_input) if nn_ode_args is None else (nn.W, external_input, *nn_ode_args)
+    solve_ivp_args = (nn.W, external_input) if nn_ode_args is None else (nn.W, external_input, nn_ode_args)
     return sp.integrate.solve_ivp(ode_func, [0, nn.T - 1], nn.U[:, 0], t_eval=np.arange(0, nn.T), args=solve_ivp_args)
-
 
 def plot_weight_matrix(nn: Network, title: str):
     w = nn.W
