@@ -41,7 +41,7 @@ class Network:
 
     def simulate(self, external_input: np.ndarray, ivp_func, get_U_func, ivp_func_kwargs: dict = None):
         # store_vars()
-        self.U[:, 0] = 0
+        self.U = np.zeros((self.N, self.T))
         result = ivp_func(self, external_input) if ivp_func_kwargs is None else ivp_func(self, external_input,
                                                                                        **ivp_func_kwargs)
         self.U = get_U_func(result)
